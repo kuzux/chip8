@@ -69,6 +69,14 @@ void do_ret(){
     sp--;
 }
 
+void do_call(uint32_t addr){
+    
+}
+
+void do_skip_next(uint32_t reg, uint32_t val){
+
+}
+
 void handle(uint16_t instr){
     uint16_t op = instr & 0xF000;
     switch(op){
@@ -82,10 +90,13 @@ void handle(uint16_t instr){
         }
         break;
         case 0x1:
+        pc = instr & 0x0FFF;
         break;
         case 0x2:
+        do_call(instr & 0x0FFF);
         break;
         case 0x3:
+        do_skip_next(instr & 0x0F00, instr &0x00FF);
         break;
         case 0x4:
         break;
