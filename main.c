@@ -60,20 +60,32 @@ void load_file(FILE* f){
     }
 }
 
-void do_cls(){
+void do_cls() {
 
 }
 
-void do_ret(){
+void do_ret() {
     pc = stack[sp];
     sp--;
 }
 
-void do_call(uint32_t addr){
+void do_call(uint32_t addr) {
     
 }
 
-void do_skip_next(uint32_t reg, uint32_t val){
+void do_skip_next(uint32_t reg, uint32_t val) {
+
+}
+
+void do_skip_next_neq(uint32_t reg, uint32_t val) {
+
+}
+
+void do_skip_next_eq_reg(uint32_t reg1, uint32_t reg2) {
+
+}
+
+void do_load(uint32_t reg, uint32_t val) {
 
 }
 
@@ -96,13 +108,16 @@ void handle(uint16_t instr){
         do_call(instr & 0x0FFF);
         break;
         case 0x3:
-        do_skip_next(instr & 0x0F00, instr &0x00FF);
+        do_skip_next(instr & 0x0F00, instr & 0x00FF);
         break;
         case 0x4:
+        do_skip_next_neq(instr & 0x0F00, instr & 0x00FF);
         break;
         case 0x5:
+        do_skip_next_eq_reg(instr & 0x0F00, instr & 0x00F0);
         break;
         case 0x6:
+        do_load(instr & 0x0F00, instr & 0x00FF);
         break;
         case 0x7:
         break;
