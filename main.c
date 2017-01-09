@@ -70,23 +70,34 @@ void do_ret() {
 }
 
 void do_call(uint32_t addr) {
-    
+    stack[sp++] = pc;
+    pc = addr;
 }
 
 void do_skip_next(uint32_t reg, uint32_t val) {
-
+    if(regs[reg]==val) {
+        pc += 2;
+    }
 }
 
 void do_skip_next_neq(uint32_t reg, uint32_t val) {
-
+    if(regs[reg]!=val) {
+        pc += 2;
+    }
 }
 
 void do_skip_next_eq_reg(uint32_t reg1, uint32_t reg2) {
-
+    if(regs[reg1]==regs[reg2]) {
+        pc += 2;
+    }
 }
 
 void do_load(uint32_t reg, uint32_t val) {
+    regs[reg] = val;
+}
 
+void do_add(uint32_t reg, uint32_t val) {
+    regs[reg] += val;
 }
 
 void handle(uint16_t instr){
@@ -120,6 +131,7 @@ void handle(uint16_t instr){
         do_load(instr & 0x0F00, instr & 0x00FF);
         break;
         case 0x7:
+        do_add(instr & 0x0F00, instr & 0x00FF);
         break;
         case 0x8:
         break;
