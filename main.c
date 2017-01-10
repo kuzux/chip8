@@ -10,6 +10,7 @@ int32_t snd_timer;
 bool done;
 uint32_t pc;
 uint32_t sp;
+uint32_t idx;
 
 uint16_t read_be(uint32_t addr){
     uint16_t byte1 = mem[addr];
@@ -100,6 +101,22 @@ void do_add(uint32_t reg, uint32_t val) {
     regs[reg] += val;
 }
 
+void do_arith(uint32_t reg1, uint32_t reg2, uint32_t op) {
+    switch(op) {
+
+    }
+}
+
+void do_skip_next_neq_reg(uint32_t reg1, uint32_t reg2) {
+    if(regs[reg1]!=regs[reg2]) {
+        pc += 2;
+    }
+}
+
+void do_load_idx(uint32_t addr) {
+    idx = addr;
+}
+
 void handle(uint16_t instr){
     uint16_t op = instr & 0xF000;
     switch(op){
@@ -134,10 +151,13 @@ void handle(uint16_t instr){
         do_add(instr & 0x0F00, instr & 0x00FF);
         break;
         case 0x8:
+        do_arith(instr & 0x0F00, instr & 0x00F0, instr & 0x000F);
         break;
         case 0x9:
+        do_skip_next_neq_reg(instr & 0x0F00, instr & 0x00F0);
         break;
         case 0xA:
+        do_load_idx(instr & 0x0FFF);
         break;
         case 0xB:
         break;
