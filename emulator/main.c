@@ -12,19 +12,21 @@ uint32_t pc;
 uint32_t sp;
 uint32_t idx;
 
-uint16_t read_be(uint32_t addr){
+int debugmode;
+
+uint16_t read_be(uint32_t addr) {
     uint16_t byte1 = mem[addr];
     uint16_t byte2 = mem[addr+1];
 
     return (byte2 << 8) | byte1;
 }
 
-void error(char* msg){
-    printf("error: %s\n", msg);
+void error(char* msg) {
+    fprintf(stderr, "error: %s\n", msg);
     exit(1);
 }
 
-void* delay_fun(void* arg){
+void* delay_fun(void* arg) {
     while(!done){
         if(delay_timer > 0){
             delay_timer--;
@@ -34,7 +36,7 @@ void* delay_fun(void* arg){
     return NULL;
 }
 
-void* snd_fun(void* arg){
+void* snd_fun(void* arg) {
     while(!done){
         if(snd_timer > 0){
             snd_timer--;
@@ -44,7 +46,7 @@ void* snd_fun(void* arg){
     return NULL;
 }
 
-void init_state(){
+void init_state() {
     delay_timer = -1;
     snd_timer = -1;
     done = 1;
@@ -52,7 +54,7 @@ void init_state(){
     sp = 0;
 }
 
-void load_file(FILE* f){
+void load_file(FILE* f) {
     int addr = 0x200;
 
     while(!feof(f)){
@@ -117,7 +119,7 @@ void do_load_idx(uint32_t addr) {
     idx = addr;
 }
 
-void handle(uint16_t instr){
+void handle(uint16_t instr) {
     uint16_t op = instr & 0xF000;
     switch(op){
         case 0x0:
@@ -174,7 +176,7 @@ void handle(uint16_t instr){
     printf("%x\n", instr);
 }
 
-void run_program(){
+void run_program() {
     done = 1;
 
     for(;;){
@@ -187,18 +189,61 @@ void run_program(){
     }
 }
 
-void cleanup(){
+void cleanup() {
 
 }
 
+void print_version() {
+    printf("Chip 8 emulator version %s\n", VERSION);
+}
+
+void print_help() {
+    print_version();
+
+    printf("Chip8 emulator, just supply a ROM file\n\n");
+    printf("USAGE:\n");
+    printf("chip8 -[gmhv] file\n\n");
+    printf("OPTIONS:\n");
+    printf("-g: enable debug mode. implies -m\n");
+    printf("-m: mute. no sound. \n");
+    printf("-h: print this help message.\n");
+    printf("-v: show version.\n");
+}
+
 int main(int argc, char** argv){
-    if(argc < 2){
+    int c;
+    int mute = 0;
+
+    while((c = getopt(argc, argv, "gmhv")) != -1) {
+        switch(c) {
+            case 'g':
+            debugmode = 1;
+            mute = 1;
+            break;
+            case 'm':
+            mute = 1;
+            break;
+            case 'h':
+            print_help();
+            return 0;
+            case 'v':
+            print_version();
+            return 0;
+
+            default:
+            abort();
+        }
+    }
+
+    int num_args = argc - optind;
+
+    if(argc < 1) {
         error("No input file");
     }
 
-    FILE* f = fopen(argv[1], "rb");
+    FILE* f = fopen(argv[optind], "rb");
 
-    if(!f){
+    if(!f) {
         error("No such file or directory");
     }
 
@@ -206,16 +251,26 @@ int main(int argc, char** argv){
 
     fclose(f);
 
+    if(debugmode) {
+        printf("debug mode\n");
+    }
+
     pthread_t tid, tid2;
 
     init_state();
+    
     pthread_create(&tid, NULL, delay_fun, NULL);
-    pthread_create(&tid2, NULL, snd_fun, NULL);
+    if(!mute) {
+        pthread_create(&tid2, NULL, snd_fun, NULL);
+    }
 
     run_program();
     
     pthread_join(tid, NULL);
-    pthread_join(tid2, NULL);
+    if(!mute) {
+        pthread_join(tid2, NULL);
+    }
+
     cleanup();
 
     return 0;

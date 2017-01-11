@@ -7,5 +7,8 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <pthread.h>
+#include <unistd.h>
+
+#define VERSION "0.01"
 
 #endif

@@ -5,7 +5,7 @@ void print_header() {
 }
 
 void error(char* msg) {
-    fprintf(stderr, "%s\n", msg);
+    fprintf(stderr, "error: %s\n", msg);
     exit(1);
 }
 
