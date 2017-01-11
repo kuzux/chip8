@@ -4,3 +4,4 @@ chip8
 chip8-as
 .vscode/*
 */.vscode/*
+*/test.s
