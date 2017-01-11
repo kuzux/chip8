@@ -52,6 +52,8 @@ void init_state() {
     done = 1;
     pc = 0x200;
     sp = 0;
+
+    srand(time(NULL));
 }
 
 void load_file(FILE* f) {
@@ -173,7 +175,7 @@ void do_jmp_off(uint32_t addr) {
 }
 
 void do_rnd(uint32_t reg, uint32_t mask) {
-
+    regs[reg] = (rand() % 256) & mask;
 }
 
 void do_draw(uint32_t vx, uint32_t vy, uint32_t len) {
@@ -189,7 +191,23 @@ void do_skip_nopress(uint32_t key) {
 }
 
 void do_kb(uint32_t key, uint32_t op) {
+    switch(op) {
+        case 0x9E:
+        do_skip_press(key);
+        break;
+        case 0xA1:
+        do_skip_nopress(key);
+        break;
+        default:
+        fprintf(stderr, "wrong keyboard op %d\n", op);
+    }
+}
 
+void do_misc(uint32_t reg, uint32_t op) {
+    switch(op) {
+        default:
+        fprintf(stderr, "wrong op %d\n", op);
+    }
 }
 
 void handle(uint16_t instr) {
@@ -247,6 +265,7 @@ void handle(uint16_t instr) {
         do_kb(instr & 0x0F00, instr & 0x00FF);
         break;
         case 0xF:
+        do_misc(instr & 0x0F00, instr & 0x00FF);
         break;
     }
     
