@@ -1,4 +1,4 @@
-CFLAGS?=-O2 -g
+CFLAGS?=-O2 -g -Wall -Werror
 OBJS:=main.o
 
 all: chip8

@@ -10,7 +10,7 @@ int32_t snd_timer;
 bool done;
 uint32_t pc;
 uint32_t sp;
-uint32_t idx;
+uint32_t idx; // a specific idx register
 
 int debugmode;
 
@@ -105,7 +105,56 @@ void do_add(uint32_t reg, uint32_t val) {
 
 void do_arith(uint32_t reg1, uint32_t reg2, uint32_t op) {
     switch(op) {
+        case 0x0:
+            regs[reg1] = regs[reg2];
+            break;
+        case 0x1:
+            regs[reg1] |= regs[reg2];
+            break;
+        case 0x2:
+            regs[reg1] &= regs[reg2];
+            break;
+        case 0x3:
+            regs[reg1] ^= regs[reg2];
+            break;
+        case 0x4:
+            if((int)regs[reg1] + (int)regs[reg2] > 256) {
+                regs[0xF] = 1;
+            }
+            regs[reg1] += regs[reg2];
+            break;
+        case 0x5:
+            if((int)regs[reg1] - (int)regs[reg2] < 0) {
+                regs[0xF] = 1;
+            }
+            regs[reg1] -= regs[reg2];
+            break;
+        case 0x6:
+            if(regs[reg1] & 0x0001) {
+                regs[0xF] = 1;
+            } else {
+                regs[0xF] = 0;
+            }
 
+            regs[reg1] >>= regs[reg2];
+            break;
+        case 0x7:
+            if((int)regs[reg2] - (int)regs[reg1] < 0) {
+                regs[0xF] = 1;
+            }
+            regs[reg1] = regs[reg2] - regs[reg1];
+            break;
+        case 0xE:
+            if(regs[reg1] & 0x8000) {
+                regs[0xF] = 1;
+            } else {
+                regs[0xF] = 0;
+            }
+
+            regs[reg1] <<= regs[reg2];
+            break;
+        default:
+            fprintf(stderr, "unexpected arithmetic operator %d\n", op);
     }
 }
 
@@ -117,6 +166,30 @@ void do_skip_next_neq_reg(uint32_t reg1, uint32_t reg2) {
 
 void do_load_idx(uint32_t addr) {
     idx = addr;
+}
+
+void do_jmp_off(uint32_t addr) {
+    pc = addr + regs[0x0];
+}
+
+void do_rnd(uint32_t reg, uint32_t mask) {
+
+}
+
+void do_draw(uint32_t vx, uint32_t vy, uint32_t len) {
+
+}
+
+void do_skip_press(uint32_t key) {
+
+}
+
+void do_skip_nopress(uint32_t key) {
+
+}
+
+void do_kb(uint32_t key, uint32_t op) {
+
 }
 
 void handle(uint16_t instr) {
@@ -162,12 +235,16 @@ void handle(uint16_t instr) {
         do_load_idx(instr & 0x0FFF);
         break;
         case 0xB:
+        do_jmp_off(instr & 0x0FFF);
         break;
         case 0xC:
+        do_rnd(instr & 0x0F00, instr & 0x00FF);
         break;
         case 0xD:
+        do_draw(instr & 0x0F00, instr & 0x00F0, instr & 0x000F);
         break;
         case 0xE:
+        do_kb(instr & 0x0F00, instr & 0x00FF);
         break;
         case 0xF:
         break;
@@ -237,7 +314,7 @@ int main(int argc, char** argv){
 
     int num_args = argc - optind;
 
-    if(argc < 1) {
+    if(num_args < 1) {
         error("No input file");
     }
 
