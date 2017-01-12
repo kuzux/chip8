@@ -16,6 +16,10 @@ uint8_t kb[16];
 uint8_t display[SCR_SIZE];
 
 int debugmode;
+int mute;
+
+
+pthread_t delay_tid, snd_tid;
 
 // pointer to memory area that stores the character sprites
 uint16_t* chars;
@@ -66,7 +70,17 @@ void init_state() {
     write_chars();
 
     srand(time(NULL));
-    do_cls();
+}
+
+void init_threads() {
+    pthread_create(&delay_tid, NULL, delay_fun, NULL);
+    if(!mute) {
+        pthread_create(&snd_tid, NULL, snd_fun, NULL);
+    }
+}
+
+void init_sdl() {
+
 }
 
 void load_file(FILE* f) {
@@ -306,7 +320,11 @@ void run_program() {
 }
 
 void cleanup() {
-
+    pthread_join(delay_tid, NULL);
+    
+    if(!mute) {
+        pthread_join(snd_tid, NULL);
+    }
 }
 
 void print_version() {
@@ -328,7 +346,6 @@ void print_help() {
 
 int main(int argc, char** argv){
     int c;
-    int mute = 0;
 
     while((c = getopt(argc, argv, "gmhv")) != -1) {
         switch(c) {
@@ -371,21 +388,12 @@ int main(int argc, char** argv){
         printf("debug mode\n");
     }
 
-    pthread_t tid, tid2;
 
     init_state();
-    
-    pthread_create(&tid, NULL, delay_fun, NULL);
-    if(!mute) {
-        pthread_create(&tid2, NULL, snd_fun, NULL);
-    }
+    init_threads();
+    init_sdl();
 
     run_program();
-    
-    pthread_join(tid, NULL);
-    if(!mute) {
-        pthread_join(tid2, NULL);
-    }
 
     cleanup();
 
