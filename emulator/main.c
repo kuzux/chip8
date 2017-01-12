@@ -12,7 +12,13 @@ uint32_t pc;
 uint32_t sp;
 uint32_t idx; // a specific idx register
 
+uint8_t kb[16];
+uint8_t display[SCR_SIZE];
+
 int debugmode;
+
+// pointer to memory area that stores the character sprites
+uint16_t* chars;
 
 uint16_t read_be(uint32_t addr) {
     uint16_t byte1 = mem[addr];
@@ -46,14 +52,21 @@ void* snd_fun(void* arg) {
     return NULL;
 }
 
+void write_chars() {
+
+}
+
 void init_state() {
     delay_timer = -1;
     snd_timer = -1;
     done = 1;
     pc = 0x200;
     sp = 0;
+    chars = (uint16_t*)(mem + 0x100);
+    write_chars();
 
     srand(time(NULL));
+    do_cls();
 }
 
 void load_file(FILE* f) {
@@ -66,7 +79,10 @@ void load_file(FILE* f) {
 }
 
 void do_cls() {
-
+    int i;
+    for(i=0;i<SCR_SIZE;i++) {
+        display[i] = 0;
+    }
 }
 
 void do_ret() {
@@ -183,11 +199,15 @@ void do_draw(uint32_t vx, uint32_t vy, uint32_t len) {
 }
 
 void do_skip_press(uint32_t key) {
-
+    if(kb[key]) {
+        pc += 2;
+    }
 }
 
 void do_skip_nopress(uint32_t key) {
-
+    if(!kb[key]) {
+        pc += 2;
+    }
 }
 
 void do_kb(uint32_t key, uint32_t op) {
