@@ -18,8 +18,9 @@ uint8_t display[SCR_SIZE];
 int debugmode;
 int mute;
 
-
 pthread_t delay_tid, snd_tid;
+
+SDL_Window* win;
 
 // pointer to memory area that stores the character sprites
 uint16_t* chars;
@@ -31,7 +32,7 @@ uint16_t read_be(uint32_t addr) {
     return (byte2 << 8) | byte1;
 }
 
-void error(char* msg) {
+void error(const char* msg) {
     fprintf(stderr, "error: %s\n", msg);
     exit(1);
 }
@@ -80,7 +81,16 @@ void init_threads() {
 }
 
 void init_sdl() {
+    if(SDL_Init(SDL_INIT_VIDEO)) {
+        
+    }
 
+    win = SDL_CreateWindow(WINDOW_TITLE, 0, 0, WINDOW_WIDTH, WINDOW_HEIGHT, SDL_WINDOW_SHOWN);
+
+    if(!win) {        
+        SDL_Quit();
+        error(SDL_GetError());
+    }
 }
 
 void load_file(FILE* f) {
