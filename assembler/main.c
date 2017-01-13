@@ -39,6 +39,33 @@ void readint(char* str, int* x) {
     }
 }
 
+int readreg(char* str, int* n) {
+    if(*str=='v'||*str=='V') {
+        str++;
+        if(isxdigit(*str)) {
+            *n = strtol(str, NULL, 16);
+            return 0;
+        } else {
+            return 1;
+        }
+    } else {
+        return 1;
+    }
+}
+
+int isreg(char* str, int n) {
+    if(*str=='v'||*str=='V') {
+        str++;
+        if(*str - '0' == n) {
+            return 0;
+        } else {
+            return 1;
+        }
+    } else {
+        return 1;
+    }
+}
+
 void handle_file(FILE* f) {
     char buf[256];
     buf[255] = 0;
@@ -52,6 +79,8 @@ void handle_file(FILE* f) {
         chomp(op, strlen(op));
         downcase(op, strlen(op));
 
+        buf = strtok(NULL, " ");
+
         if(!strcmp(buf, "sys")) {
             int n; 
             readint(buf, &n);
@@ -61,6 +90,27 @@ void handle_file(FILE* f) {
             write_instr(0x00E0);
         } else if(!strcmp(buf, "ret")) {
             write_instr(0x00EE);
+        } else if(!strcmp(buf, "call")) {
+            int n; 
+            readint(buf, &n);
+
+            write_instr(0x2000 | (n & 0x0/FFF));
+        } else if(!strcmp(buf, "jmp")) {
+            int n;
+
+            if(isreg(buf, 0)) {
+                // got an address
+                readint(buf, &n);
+
+                write_instr(0x2000 | (n & 0x0/FFF));
+            } else {
+                // got a register, read another integer                
+                buf = strtok(NULL, " ");
+
+                readint(buf, &n);
+
+                write_instr(0xB000 | (n & 0x0/FFF))
+            }
         } else {
             fprintf(stderr, "invalid op %s at line %d\n", op, line);
         }
