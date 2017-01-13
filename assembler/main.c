@@ -57,17 +57,26 @@ int isreg(char* str, int n) {
     if(*str=='v'||*str=='V') {
         str++;
         if(*str - '0' == n) {
-            return 0;
-        } else {
             return 1;
+        } else {
+            return 0;
         }
     } else {
+        return 0;
+    }
+}
+
+int isidx(char* buf) {
+    if(*buf == 'i' || *buf=='I') {
         return 1;
+    } else {
+        return 0;
     }
 }
 
 void handle_file(FILE* f) {
-    char buf[256];
+    char* buf;
+    buf = malloc(256);
     buf[255] = 0;
     char* op;
 
@@ -94,22 +103,50 @@ void handle_file(FILE* f) {
             int n; 
             readint(buf, &n);
 
-            write_instr(0x2000 | (n & 0x0/FFF));
+            write_instr(0x2000 | (n & 0x0FFF));
         } else if(!strcmp(buf, "jmp")) {
             int n;
 
-            if(isreg(buf, 0)) {
+            if(!isreg(buf, 0)) {
                 // got an address
                 readint(buf, &n);
 
-                write_instr(0x2000 | (n & 0x0/FFF));
+                write_instr(0x2000 | (n & 0x0FFF));
             } else {
                 // got a register, read another integer                
                 buf = strtok(NULL, " ");
 
                 readint(buf, &n);
 
-                write_instr(0xB000 | (n & 0x0/FFF))
+                write_instr(0xB000 | (n & 0x0FFF));
+            }
+        } else if(!strcmp(buf, "se")) {
+            int n, m;
+            readreg(buf, &n);
+
+            buf = strtok(NULL, " ");
+
+            if(readreg(buf, &m)) {
+                // immediate value
+                readint(buf, &m);
+                write_instr(0x3000 | (n & 0x0F00) | (m &0x00FF));
+            } else {
+                // 2nd arg is a register
+                write_instr(0x5000 | (n & 0x0F00) | (m & 0x00F0));
+            }
+        } else if(!strcmp(buf, "sne")) {
+            int n, m;
+            readreg(buf, &n);
+
+            buf = strtok(NULL, " ");
+
+            if(readreg(buf, &m)) {
+                // immediate value
+                readint(buf, &m);
+                write_instr(0x4000 | (n & 0x0F00) | (m &0x00FF));
+            } else {
+                // 2nd arg is a register
+                write_instr(0x9000 | (n & 0x0F00) | (m & 0x00F0));
             }
         } else {
             fprintf(stderr, "invalid op %s at line %d\n", op, line);
@@ -122,10 +159,11 @@ void handle_file(FILE* f) {
 void write_out(char* filename) {
     FILE* outfile = fopen(filename, "wb");
     if(!outfile) {
-        error("No such file or directory: %s\n", filename);
+        fprintf(stderr, "No such file or directory:\n");
+        error(filename);
     }
 
-    fwrite(outbuf, outidx, filename);
+    fwrite(outbuf, outidx, 1, outfile);
 }
 
 int main(int argc, char** argv) {
@@ -136,7 +174,8 @@ int main(int argc, char** argv) {
     FILE* f = fopen(argv[1], "rb");
 
     if(!f){
-        error("No such file or directory: %s\n", argv[1]);
+        fprintf(stderr, "No such file or directory:\n");
+        error(argv[1]);
     }
 
     print_header();
