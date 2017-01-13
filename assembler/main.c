@@ -66,8 +66,8 @@ int isreg(char* str, int n) {
     }
 }
 
-int isidx(char* buf) {
-    if(*buf == 'i' || *buf=='I') {
+int ischar(char* buf, char c) {
+    if(*buf == tolower(c) || *buf==toupper(c)) {
         return 1;
     } else {
         return 0;
@@ -90,21 +90,21 @@ void handle_file(FILE* f) {
 
         buf = strtok(NULL, " ");
 
-        if(!strcmp(buf, "sys")) {
+        if(!strcmp(op, "sys")) {
             int n; 
             readint(buf, &n);
 
             write_instr(0x0FFF & (n >> 1));
-        } else if(!strcmp(buf, "cls")) {
+        } else if(!strcmp(op, "cls")) {
             write_instr(0x00E0);
-        } else if(!strcmp(buf, "ret")) {
+        } else if(!strcmp(op, "ret")) {
             write_instr(0x00EE);
-        } else if(!strcmp(buf, "call")) {
+        } else if(!strcmp(op, "call")) {
             int n; 
             readint(buf, &n);
 
             write_instr(0x2000 | (n & 0x0FFF));
-        } else if(!strcmp(buf, "jmp")) {
+        } else if(!strcmp(op, "jmp")) {
             int n;
 
             if(!isreg(buf, 0)) {
@@ -120,7 +120,7 @@ void handle_file(FILE* f) {
 
                 write_instr(0xB000 | (n & 0x0FFF));
             }
-        } else if(!strcmp(buf, "se")) {
+        } else if(!strcmp(op, "se")) {
             int n, m;
             readreg(buf, &n);
 
@@ -134,7 +134,7 @@ void handle_file(FILE* f) {
                 // 2nd arg is a register
                 write_instr(0x5000 | (n & 0x0F00) | (m & 0x00F0));
             }
-        } else if(!strcmp(buf, "sne")) {
+        } else if(!strcmp(op, "sne")) {
             int n, m;
             readreg(buf, &n);
 
@@ -147,6 +147,35 @@ void handle_file(FILE* f) {
             } else {
                 // 2nd arg is a register
                 write_instr(0x9000 | (n & 0x0F00) | (m & 0x00F0));
+            }
+        } else if(!strcmp(op, "ld")) {
+            // TODO
+        } else if(!strcmp(op, "add")) {
+            if(ischar(buf, 'i')) {
+                // got an add i vx type instruction
+
+                // get the vx bit
+                buf = strtok(NULL, " ");
+
+                int n;
+                readreg(buf, &n);
+
+                write_instr(0xF01E | (n & 0x0F00));
+            } else {
+                int n, m;
+                readreg(buf, &n);
+                
+                buf = strtok(NULL, " ");
+
+                if(!readreg(buf, &m)) {
+                    // add vx vy
+                    // TODO
+                } else {
+                    // add vx nnn
+                    readint(buf, &m);
+                    
+                    // TODO
+                }
             }
         } else {
             fprintf(stderr, "invalid op %s at line %d\n", op, line);
