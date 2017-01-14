@@ -169,14 +169,58 @@ void handle_file(FILE* f) {
 
                 if(!readreg(buf, &m)) {
                     // add vx vy
-                    // TODO
+
+                    write_instr(0x8004 | (n & 0x0F00) | (m & 0x00F0));
                 } else {
                     // add vx nnn
                     readint(buf, &m);
-                    
-                    // TODO
+                    write_instr(0x7000 | (n & 0x0F00) | (m & 0x00FF));       
                 }
             }
+        } else if(!strcmp(op, "and")) {
+            // and vx vy
+            int n, m;
+
+            readreg(buf, &n);
+                
+            buf = strtok(NULL, " ");
+
+            readreg(buf, &m);
+
+            write_instr(0x8002 | (n & 0x0F00) | (m & 0x00F0));
+        } else if(!strcmp(op, "or")) {
+            // or vx vy
+            int n, m;
+
+            readreg(buf, &n);
+                
+            buf = strtok(NULL, " ");
+
+            readreg(buf, &m);
+
+            write_instr(0x8001 | (n & 0x0F00) | (m & 0x00F0));
+        } else if(!strcmp(op, "xor")) {
+            // xor vx vy
+            int n, m;
+
+            readreg(buf, &n);
+                
+            buf = strtok(NULL, " ");
+
+            readreg(buf, &m);
+
+            write_instr(0x8003 | (n & 0x0F00) | (m & 0x00F0));
+        } else if(!strcmp(op, "sub")) {
+            // sub vx vy
+            int n, m;
+
+            readreg(buf, &n);
+                
+            buf = strtok(NULL, " ");
+
+            readreg(buf, &m);
+
+            write_instr(0x8005 | (n & 0x0F00) | (m & 0x00F0));
         } else {
             fprintf(stderr, "invalid op %s at line %d\n", op, line);
         }
