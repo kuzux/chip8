@@ -109,11 +109,13 @@ void handle_file(FILE* f) {
 
             if(!isreg(buf, 0)) {
                 // got an address
+                // jmp nnn
                 readint(buf, &n);
 
                 write_instr(0x2000 | (n & 0x0FFF));
             } else {
-                // got a register, read another integer                
+                // got a register, read another integer
+                // jmp v0 nnn                
                 buf = strtok(NULL, " ");
 
                 readint(buf, &n);
@@ -221,9 +223,46 @@ void handle_file(FILE* f) {
             readreg(buf, &m);
 
             write_instr(0x8005 | (n & 0x0F00) | (m & 0x00F0));
+        } else if(!strcmp(op, "subn")) {
+            // subn vx vy
+            int n, m;
+
+            readreg(buf, &n);
+                
+            buf = strtok(NULL, " ");
+
+            readreg(buf, &m);
+
+            write_instr(0x8007 | (n & 0x0F00) | (m & 0x00F0));
+        } else if(!strcmp(op, "shr")) {
+            // shr vx
+            int n;
+
+            readreg(buf, &n);
+
+            write_instr(0x8006 | (n & 0x0F00));
+        } else if(!strcmp(op, "shl")) {
+            // shl vx
+            int n;
+
+            readreg(buf, &n);
+
+            write_instr(0x800E | (n & 0x0F00));
+        } else if(!strcmp(op, "rnd")) {
+            // rnd vx nnn
+            int n, m;
+
+            readreg(buf, &n);
+
+            buf = strtok(NULL, " ");
+
+            readint(buf, &m);
+
+            write_instr(0xC000 | (n & 0x0F00) | (m & 0x00FF));
         } else {
             fprintf(stderr, "invalid op %s at line %d\n", op, line);
         }
+        
         line++;
 
     }
