@@ -74,6 +74,22 @@ int ischar(char* buf, char c) {
     }
 }
 
+int isstr(char* buf, char* str) {
+    int n = strlen(buf);
+    int m = strlen(str);
+
+    if(n != m) return 0;
+
+    int i;
+    for(i = 0; i<m; i++) {
+        if(!ischar(buf, *str)) return 0;
+        buf++;
+        str++;
+    }
+
+    return 1;
+}
+
 void handle_file(FILE* f) {
     char* buf;
     buf = malloc(256);
@@ -151,7 +167,23 @@ void handle_file(FILE* f) {
                 write_instr(0x9000 | (n & 0x0F00) | (m & 0x00F0));
             }
         } else if(!strcmp(op, "ld")) {
-            // TODO
+            // TODO fill those in
+
+            if(isstr(buf, "i")) {
+
+            } else if(isstr(buf, "st")) {
+
+            } else if(isstr(buf, "dt")) {
+                
+            } else if(isstr(buf, "[i]")) {
+                
+            } else if(isstr(buf, "f")) {
+                
+            } else if(isstr(buf, "b")) {
+                
+            } else {
+                // first operand is a register
+            }
         } else if(!strcmp(op, "add")) {
             if(ischar(buf, 'i')) {
                 // got an add i vx type instruction
@@ -259,10 +291,25 @@ void handle_file(FILE* f) {
             readint(buf, &m);
 
             write_instr(0xC000 | (n & 0x0F00) | (m & 0x00FF));
+        } else if(!strcmp(op, "drw")) {
+            // drw vx vy n
+            int n, m, k;
+
+            readreg(buf, &n);
+
+            buf = strtok(NULL, " ");
+
+            readreg(buf, &m);
+
+            buf = strtok(NULL, " ");
+
+            readint(buf, &k);
+
+            write_instr(0xD000 | (n & 0x0F00) | (m & 0x00F0) | (k & 0x000F));
         } else {
             fprintf(stderr, "invalid op %s at line %d\n", op, line);
         }
-        
+
         line++;
 
     }
