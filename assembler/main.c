@@ -168,13 +168,26 @@ void handle_file(FILE* f) {
             }
         } else if(!strcmp(op, "ld")) {
             // TODO fill those in
+            int n;
 
             if(isstr(buf, "i")) {
+                // ld i nnn
+                buf = strtok(NULL, " ");
 
+                readint(buf, &n);
+                write_instr(0xA000 | (n & 0x0FFF));
             } else if(isstr(buf, "st")) {
+                // ld st vx
+                buf = strtok(NULL, " ");
 
+                readreg(buf, &n);
+                write_instr(0xF018 | (n & 0x0F00));
             } else if(isstr(buf, "dt")) {
-                
+                // ld dt vx
+                buf = strtok(NULL, " ");
+
+                readreg(buf, &n);
+                write_instr(0xF015 | (n & 0x0F00));
             } else if(isstr(buf, "[i]")) {
                 
             } else if(isstr(buf, "f")) {
