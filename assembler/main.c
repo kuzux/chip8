@@ -189,13 +189,30 @@ void handle_file(FILE* f) {
                 readreg(buf, &n);
                 write_instr(0xF015 | (n & 0x0F00));
             } else if(isstr(buf, "[i]")) {
-                
+                // ld [i] vx
+                buf = strtok(NULL, " ");
+
+                readreg(buf, &n);
+                write_instr(0xF055 | (n & 0x0F00));
             } else if(isstr(buf, "f")) {
-                
+                // ld f vx
+                buf = strtok(NULL, " ");
+
+                readreg(buf, &n);
+                write_instr(0xF029 | (n & 0x0F00));
             } else if(isstr(buf, "b")) {
-                
+                // ld b vx
+                buf = strtok(NULL, " ");
+
+                readreg(buf, &n);
+                write_instr(0xF033 | (n & 0x0F00));
             } else {
                 // first operand is a register
+                readreg(buf, &n);
+
+                buf = strtok(NULL, " ");
+
+                // switch on the new buf value
             }
         } else if(!strcmp(op, "add")) {
             if(ischar(buf, 'i')) {
