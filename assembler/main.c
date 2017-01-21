@@ -168,7 +168,7 @@ void handle_file(FILE* f) {
             }
         } else if(!strcmp(op, "ld")) {
             // TODO fill those in
-            int n;
+            int n, m;
 
             if(isstr(buf, "i")) {
                 // ld i nnn
@@ -213,6 +213,17 @@ void handle_file(FILE* f) {
                 buf = strtok(NULL, " ");
 
                 // switch on the new buf value
+                if(isstr(buf, "dt")) {
+
+                } else if(isstr(buf, "k")) {
+
+                } else if(isstr(buf, "[i]")) {
+                    
+                } else if(!readreg(buf, &m)) {
+                    // got a register
+                } else {
+                    // got a byte value
+                }
             }
         } else if(!strcmp(op, "add")) {
             if(ischar(buf, 'i')) {
