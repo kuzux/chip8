@@ -214,15 +214,18 @@ void handle_file(FILE* f) {
 
                 // switch on the new buf value
                 if(isstr(buf, "dt")) {
-
+                    write_instr(0xF007 | (n & 0x0F00));
                 } else if(isstr(buf, "k")) {
-
+                    write_instr(0xF00A | (n & 0x0F00));
                 } else if(isstr(buf, "[i]")) {
-                    
+                    write_instr(0xF065 | (n & 0x0F00));
                 } else if(!readreg(buf, &m)) {
                     // got a register
+                    write_instr(0x8000 | (n & 0x0F00) | (m & 0x00F0));
                 } else {
                     // got a byte value
+                    readint(buf, &m);
+                    write_instr(0x6000 | (n & 0x0F00) | (m & 0x00FF));
                 }
             }
         } else if(!strcmp(op, "add")) {
