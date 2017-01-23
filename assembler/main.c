@@ -3,6 +3,8 @@
 uint16_t outbuf[65536];
 uint32_t outidx;
 
+int mute;
+
 void write_instr(uint16_t instr) {
     outbuf[outidx] = instr;
     outidx++;
@@ -10,6 +12,10 @@ void write_instr(uint16_t instr) {
 
 void print_header() {
     printf("chip8-as v%s\n", VERSION);
+}
+
+void print_help() {
+    print_header();
 }
 
 void error(char* msg) {
@@ -370,7 +376,29 @@ void write_out(char* filename) {
 }
 
 int main(int argc, char** argv) {
-    if(argc < 2){
+    int c;
+    char* outfile = "a.rom";
+
+    while((c = getopt(argc, argv, "mhvo:")) != -1) {
+        switch(c) {
+            case 'm':
+            mute = 1;
+            break;
+            case 'h':
+            print_help();
+            return 0;
+            case 'v':
+            print_header();
+            return 0;
+            case 'o':
+            outfile = optarg;
+            break;
+        }
+    }
+
+    int num_args = argc - optind;
+
+    if(num_args < 1) {
         error("No input file");
     }
 
@@ -384,7 +412,7 @@ int main(int argc, char** argv) {
     print_header();
     handle_file(f);
     fclose(f);
-    write_out("a.rom");
+    write_out(outfile);
 
     return 0;
 }
