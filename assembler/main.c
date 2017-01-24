@@ -37,7 +37,6 @@ void downcase(char* str, int n) {
 }
 
 void readint(char* str, int* x) {
-    str = strtok(NULL, " "); 
     *x = atoi(str);
 
     if(*x > 65535) {
@@ -99,12 +98,26 @@ int isstr(char* buf, char* str) {
 void handle_file(FILE* f) {
     char* buf;
     buf = malloc(256);
+
+    if(!buf) {
+        error("Something went wrong with malloc");
+    }
+
+    if(!f) {
+        error("Something went wrong with file - wtf");
+    }
+
+
     buf[255] = 0;
+
     char* op;
 
     int line = 1;
 
-    while(fgets(buf, 255, f)) {
+    char* orig = buf;
+
+    while(fgets(orig, 250, f)) {
+        buf = orig;
         op = strtok(buf, " ");
 
         chomp(op, strlen(op));
@@ -402,11 +415,11 @@ int main(int argc, char** argv) {
         error("No input file");
     }
 
-    FILE* f = fopen(argv[1], "rb");
+    FILE* f = fopen(argv[optind], "r");
 
     if(!f){
         fprintf(stderr, "No such file or directory:\n");
-        error(argv[1]);
+        error(argv[optind]);
     }
 
     print_header();
