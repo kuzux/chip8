@@ -369,6 +369,12 @@ void handle_file(FILE* f) {
             readint(buf, &k);
 
             write_instr(0xD000 | (n & 0x0F00) | (m & 0x00F0) | (k & 0x000F));
+        } else if(!strcmp(op, "scd")) {
+        } else if(!strcmp(op, "scr")) {
+        } else if(!strcmp(op, "scl")) {
+        } else if(!strcmp(op, "exit")) {
+        } else if(!strcmp(op, "low")) {
+        } else if(!strcmp(op, "high")) {
         } else {
             fprintf(stderr, "invalid op %s at line %d\n", op, line);
         }
