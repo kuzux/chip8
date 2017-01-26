@@ -370,11 +370,20 @@ void handle_file(FILE* f) {
 
             write_instr(0xD000 | (n & 0x0F00) | (m & 0x00F0) | (k & 0x000F));
         } else if(!strcmp(op, "scd")) {
+            int n;
+            readint(buf. &n);
+
+            write_instr(0x00C0 | (n & 0x0F00));
         } else if(!strcmp(op, "scr")) {
+            write_instr(0x00FB);
         } else if(!strcmp(op, "scl")) {
+            write_instr(0x00FC);
         } else if(!strcmp(op, "exit")) {
+            write_instr(0x00FD);
         } else if(!strcmp(op, "low")) {
+            write_instr(0x00FE);
         } else if(!strcmp(op, "high")) {
+            write_instr(0x00FF);
         } else {
             fprintf(stderr, "invalid op %s at line %d\n", op, line);
         }
