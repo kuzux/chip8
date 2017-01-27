@@ -225,6 +225,18 @@ void handle_file(FILE* f) {
 
                 readreg(buf, &n);
                 write_instr(0xF033 | (n & 0x0F00));
+            } else if(isstr(buf, "hf")) {
+                // ld hf vx
+                buf = strtok(NULL, " ");
+
+                readreg(buf, &n);
+                write_instr(0xF030 | (n & 0x0F00));
+            } else if(isstr(buf, "r")) {
+                // ld r vx
+                buf = strtok(NULL, " ");
+
+                readreg(buf, &n);
+                write_instr(0xF075 | (n & 0x0F00));
             } else {
                 // first operand is a register
                 readreg(buf, &n);
@@ -238,6 +250,8 @@ void handle_file(FILE* f) {
                     write_instr(0xF00A | (n & 0x0F00));
                 } else if(isstr(buf, "[i]")) {
                     write_instr(0xF065 | (n & 0x0F00));
+                } else if(isstr(buf, "r")) {
+                    write_instr(0xF085 | (n & 0x0F00));
                 } else if(!readreg(buf, &m)) {
                     // got a register
                     write_instr(0x8000 | (n & 0x0F00) | (m & 0x00F0));
@@ -371,7 +385,7 @@ void handle_file(FILE* f) {
             write_instr(0xD000 | (n & 0x0F00) | (m & 0x00F0) | (k & 0x000F));
         } else if(!strcmp(op, "scd")) {
             int n;
-            readint(buf. &n);
+            readint(buf, &n);
 
             write_instr(0x00C0 | (n & 0x0F00));
         } else if(!strcmp(op, "scr")) {
