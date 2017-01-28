@@ -21,6 +21,7 @@ int mute;
 pthread_t delay_tid, snd_tid;
 
 SDL_Window* win;
+SDL_Renderer *render;
 
 // pointer to memory area that stores the character sprites
 uint16_t* chars;
@@ -82,14 +83,41 @@ void init_threads() {
 
 void init_sdl() {
     if(SDL_Init(SDL_INIT_VIDEO)) {
-        
+        error(SDL_GetError());
     }
 
     win = SDL_CreateWindow(WINDOW_TITLE, 0, 0, WINDOW_WIDTH, WINDOW_HEIGHT, SDL_WINDOW_SHOWN);
 
-    if(!win) {        
+    if(!win) {
         SDL_Quit();
         error(SDL_GetError());
+    }
+
+    render = SDL_CreateRenderer(win, -1, SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC);
+}
+
+void draw_pixel(SDL_Renderer* rend, int i, int j, uint8_t pixel) {
+    SDL_Rect rect;
+    rect.x = PIXEL_WIDTH*j;
+    rect.y = PIXEL_HEIGHT*i;
+    rect.w = PIXEL_WIDTH;
+    rect.h = PIXEL_HEIGHT;
+
+    if (pixel) {
+        SDL_SetRenderDrawColor(rend, 255, 255, 255, 255);
+    } else {
+        SDL_SetRenderDrawColor(rend, 0, 0, 0, 255);
+    }
+
+    SDL_RenderFillRect(rend, &rect);
+}
+
+void draw_screen() {
+    uint32_t i, j;
+    for (i=0; i < SCR_HEIGHT; i++) {
+        for (j=0; j < SCR_WIDTH; j++) {
+            draw_pixel(render, i, j, display[i*SCR_WIDTH+j]);
+        }
     }
 }
 
@@ -335,6 +363,10 @@ void cleanup() {
     if(!mute) {
         pthread_join(snd_tid, NULL);
     }
+
+    SDL_DestroyRenderer(render);
+    SDL_DestroyWindow(win);
+    SDL_Quit();
 }
 
 void print_version() {
@@ -397,7 +429,6 @@ int main(int argc, char** argv){
     if(debugmode) {
         printf("debug mode\n");
     }
-
 
     init_state();
     init_threads();
