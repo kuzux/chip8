@@ -346,14 +346,24 @@ void handle(uint16_t instr) {
 
 void run_program() {
     done = 1;
+    uint8_t quit = 0;
 
-    for(;;){
+    while(!quit) {
         uint16_t instr = read_be(pc);
         handle(instr);
         pc += 2;
-        if(pc >= 0x220){
+        if(pc >= 0x220) {
             break;
         }
+        SDL_Event e;
+        while (SDL_PollEvent(&e)) {
+            if (e.type == SDL_QUIT) {
+                quit = true;
+            }
+        }
+        //Render the scene
+        SDL_RenderClear(render);
+        SDL_RenderPresent(render);
     }
 }
 
