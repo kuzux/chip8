@@ -283,7 +283,7 @@ void do_misc(uint32_t reg, uint32_t op) {
 }
 
 void handle(uint16_t instr) {
-    uint16_t op = instr & 0xF000;
+    uint16_t op = (instr & 0xF000) >> 12;
     switch(op){
         case 0x0:
         if(instr==0x00e0) {
@@ -295,7 +295,7 @@ void handle(uint16_t instr) {
         }
         break;
         case 0x1:
-        pc = instr & 0x0FFF;
+        pc = (instr & 0x0FFF) - 2;
         break;
         case 0x2:
         do_call(instr & 0x0FFF);
@@ -340,8 +340,6 @@ void handle(uint16_t instr) {
         do_misc(instr & 0x0F00, instr & 0x00FF);
         break;
     }
-    
-    printf("%x\n", instr);
 }
 
 void run_program() {
@@ -355,6 +353,7 @@ void run_program() {
         if(pc >= 0x220) {
             break;
         }
+        printf("pc %x\n", pc);
         SDL_Event e;
         while (SDL_PollEvent(&e)) {
             if (e.type == SDL_QUIT) {
