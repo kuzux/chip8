@@ -30,7 +30,7 @@ uint16_t read_be(uint32_t addr) {
     uint16_t byte1 = mem[addr];
     uint16_t byte2 = mem[addr+1];
 
-    return (byte2 << 8) | byte1;
+    return (byte1 << 8) | byte2;
 }
 
 void error(const char* msg) {
@@ -283,6 +283,7 @@ void do_misc(uint32_t reg, uint32_t op) {
 }
 
 void handle(uint16_t instr) {
+    // printf("%x\n", instr);
     uint16_t op = (instr & 0xF000) >> 12;
     switch(op){
         case 0x0:
@@ -353,7 +354,7 @@ void run_program() {
         if(pc >= 0x220) {
             break;
         }
-        printf("pc %x\n", pc);
+        // printf("pc %x\n", pc);
         SDL_Event e;
         while (SDL_PollEvent(&e)) {
             if (e.type == SDL_QUIT) {
