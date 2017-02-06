@@ -25,4 +25,6 @@
 #define PIXEL_WIDTH 10
 #define PIXEL_HEIGHT 10
 
+#define CFG_FILE "chip8.cfg"
+
 #endif

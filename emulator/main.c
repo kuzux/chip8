@@ -46,6 +46,9 @@ uint8_t char_consts[] = { 0xF0, 0x90, 0x90, 0x90, 0xF0,
 
 #define CHAR_COUNT 16 * 5
 
+uint8_t* keys;
+uint32_t cpuspeed; // in Hz
+
 uint16_t read_be(uint32_t addr) {
     uint16_t byte1 = mem[addr];
     uint16_t byte2 = mem[addr+1];
@@ -76,6 +79,33 @@ void* snd_fun(void* arg) {
     }
 
     return NULL;
+}
+
+void config_default() {
+    keys = malloc(16);
+
+    int i;
+    for(i = 0; i < 10; i++) {
+        keys[i] = '0' + i;
+    }
+
+    for(i = 0; i < 6; i++) {
+        keys[i+10] = 'a' + i;
+    }
+
+    cpuspeed = 8 * 1024; // 8 KHz by default
+}
+
+void read_config() {
+    config_default();
+
+    FILE* f = fopen(CFG_FILE, "rb");
+
+    if(!f) {
+        return;
+    }
+
+    fclose(f);
 }
 
 void write_chars() {
@@ -371,6 +401,7 @@ void run_program() {
     uint8_t quit = 0;
 
     while(!quit) {
+
         uint16_t instr = read_be(pc);
         handle(instr);
         pc += 2;
@@ -384,6 +415,7 @@ void run_program() {
                 quit = true;
             }
         }
+
         //Render the scene
         SDL_RenderClear(render);
         SDL_RenderPresent(render);
@@ -442,6 +474,11 @@ int main(int argc, char** argv){
             abort();
         }
     }
+
+    // todo: make keybinds configurable
+    // todo: make cpu speed configurable
+
+    read_config();
 
     int num_args = argc - optind;
 
