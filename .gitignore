@@ -5,3 +5,6 @@ chip8-as
 .vscode/*
 */.vscode/*
 */test.s
+*/test.rom
+MAZE
+KALEID

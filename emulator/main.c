@@ -105,6 +105,34 @@ void read_config() {
         return;
     }
 
+    char* buf;
+
+    buf = malloc(256);
+
+    if(!buf) {
+        return;
+    }
+
+    buf[255] = 0;
+
+    while(fgets(buf, 256, f)) {
+        buf = strtok(buf, " ");
+
+        if (strcmp(buf, "keys")!=0) {
+            int i;
+            for(i=0;i<16;i++) {
+                buf = strtok(NULL, " ");
+
+                keys[i] = buf[0];
+            }
+        } else if(strcmp(buf, "clock")!=0) {
+            
+        } else {
+            fprintf(stderr, "invalid config option %s\n", buf);
+        }
+    }
+
+    free(buf);
     fclose(f);
 }
 

@@ -9,7 +9,7 @@
 #include <pthread.h>
 #include <unistd.h>
 #include <time.h>
-
+#include <string.h>
 #include <SDL2/SDL.h>
 
 #define VERSION "0.01"

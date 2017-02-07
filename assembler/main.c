@@ -104,7 +104,7 @@ void handle_file(FILE* f) {
     }
 
     if(!f) {
-        error("Something went wrong with file - wtf");
+        error("Something went wrong with file");
     }
 
 
@@ -116,7 +116,7 @@ void handle_file(FILE* f) {
 
     char* orig = buf;
 
-    while(fgets(orig, 250, f)) {
+    while(fgets(orig, 256, f)) {
         buf = orig;
         op = strtok(buf, " ");
 
