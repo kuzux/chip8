@@ -126,7 +126,23 @@ void read_config() {
                 keys[i] = buf[0];
             }
         } else if(strcmp(buf, "clock")!=0) {
-            
+            buf = strtok(NULL, " ");
+            int n = strlen(buf);
+
+            int base = 1;
+
+            if(buf[n-1]=='K') {
+                base = 1024;
+                buf[n-1] = 0;
+            } else if(buf[n-1]=='M') {
+                base = 1024 * 1024;
+                buf[n-1] = 0;
+            } else if(buf[n-1]=='G') {
+                base = 1024 * 1024 * 1024;
+                buf[n-1] = 0;
+            }
+
+            cpuspeed = base * atoi(buf);
         } else {
             fprintf(stderr, "invalid config option %s\n", buf);
         }
