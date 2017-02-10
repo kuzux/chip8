@@ -344,7 +344,20 @@ void do_rnd(uint32_t reg, uint32_t mask) {
 }
 
 void do_draw(uint32_t vx, uint32_t vy, uint32_t len) {
+    int i = vy, j = vx;
 
+    regs[0xF] = 0;
+
+    for(i=vy;i<vy+len;i++) {
+        uint8_t byte = mem[idx+i];
+        for(j = vx; j<vx+8; j++) {
+            if(display[i*SCR_WIDTH+j]) {
+                regs[0xF] = 1;
+            }
+            display[i*SCR_WIDTH+j] = byte % 2;
+            byte >>= 1;
+        }
+    }
 }
 
 void do_skip_press(uint32_t key) {
