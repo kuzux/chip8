@@ -12,6 +12,8 @@ uint32_t pc;
 uint32_t sp;
 uint32_t idx; // a specific idx register
 
+uint32_t curr_instr;
+
 uint8_t kb[16];
 uint8_t display[SCR_SIZE];
 
@@ -458,9 +460,12 @@ void run_program() {
     uint8_t quit = 0;
 
     while(!quit) {
-
-        uint16_t instr = read_be(pc);
-        handle(instr);
+        curr_instr = 0;
+        while(curr_instr<cpuspeed) {
+            uint16_t instr = read_be(pc);
+            handle(instr);
+            curr_instr++;
+        }
         pc += 2;
         if(pc >= 0x600) {
             break;
